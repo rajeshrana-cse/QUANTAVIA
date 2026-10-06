@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QUANTAVIA — Quantum Mechanics Visualized</title>
+<style>
+:root{--bg:#050812;--panel:rgba(12,20,36,.78);--line:rgba(130,170,255,.18);--text:#eef5ff;--muted:#91a3bf;--cyan:#65e6ff;--violet:#a78bfa;--pink:#ff76d6;--green:#6df2b3}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 20% 0%,#101b38 0,#050812 40%,#02040a 100%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background-image:radial-gradient(#8bb8ff 1px,transparent 1px);background-size:70px 70px;opacity:.07}
+button,input,select{font:inherit}button{cursor:pointer}
+.top{position:sticky;top:0;z-index:20;backdrop-filter:blur(18px);background:rgba(3,7,16,.72);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:14px 4vw}
+.brand{font-weight:950;letter-spacing:.22em;font-size:1.02rem;text-shadow:0 0 18px rgba(101,230,255,.16)}.brand span{color:var(--cyan)}
+nav{display:flex;gap:18px}nav button,.ghost{background:none;border:0;color:var(--muted);padding:8px}nav button:hover,.ghost:hover{color:var(--text)}
+.wrap{width:min(1180px,92vw);margin:auto}.hero{min-height:76vh;display:grid;place-items:center;text-align:center;padding:70px 0}
+.kicker{color:var(--cyan);letter-spacing:.25em;font-size:.75rem;text-transform:uppercase}.hero h1{font-size:clamp(3.4rem,10vw,8rem);margin:12px 0 0;letter-spacing:.06em;line-height:.9;text-shadow:0 0 35px rgba(101,230,255,.22)}
+.hero h1 span{color:transparent;-webkit-text-stroke:1px var(--cyan)}.hero p{max-width:650px;margin:28px auto;color:var(--muted);font-size:1.12rem}
+.cta{border:1px solid rgba(101,230,255,.45);background:linear-gradient(135deg,rgba(101,230,255,.18),rgba(167,139,250,.14));color:white;border-radius:14px;padding:14px 20px;box-shadow:0 0 35px rgba(101,230,255,.08)}
+.cardgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}.card{background:linear-gradient(145deg,rgba(18,29,50,.78),rgba(7,12,23,.8));border:1px solid var(--line);border-radius:20px;padding:20px;min-height:190px;transition:.25s;position:relative;overflow:hidden}.card:hover{transform:translateY(-5px);border-color:rgba(101,230,255,.45);box-shadow:0 15px 45px rgba(0,0,0,.3)}.orb{height:80px;display:grid;place-items:center;font-size:2.7rem;filter:drop-shadow(0 0 15px rgba(101,230,255,.65))}.card h3{margin:5px 0 8px}.card p{font-size:.84rem;color:var(--muted);line-height:1.5}
+section{padding:55px 0}.sectiontitle{display:flex;justify-content:space-between;align-items:end;margin-bottom:20px}.sectiontitle h2{font-size:2rem;margin:0}.muted{color:var(--muted)}
+.lab{display:grid;grid-template-columns:300px 1fr;gap:18px;min-height:calc(100vh - 180px)}.panel,.visual{background:var(--panel);border:1px solid var(--line);border-radius:20px;backdrop-filter:blur(14px)}.panel{padding:20px}.visual{padding:14px;min-height:calc(100vh - 210px);display:flex;flex-direction:column}.field{margin:16px 0}.field label{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-bottom:8px}.field input,.field select{width:100%;background:#080f1d;border:1px solid var(--line);border-radius:10px;color:white;padding:10px}input[type=range]{accent-color:var(--cyan);padding:0}.tabs{display:flex;gap:7px;margin-bottom:10px}.tabs button{border:1px solid var(--line);background:#08101f;color:var(--muted);border-radius:9px;padding:8px 10px}.tabs button.active{color:white;border-color:var(--cyan);box-shadow:0 0 16px rgba(101,230,255,.12)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}.stat{border:1px solid var(--line);border-radius:12px;padding:10px;background:rgba(255,255,255,.025)}.stat small{color:var(--muted)}.stat b{display:block;margin-top:4px}.explain{margin-top:12px;color:var(--muted);line-height:1.6;font-size:.9rem}.eq{font-family:ui-monospace,SFMono-Regular,monospace;color:#c8dcff;background:#060b15;border-radius:10px;padding:12px;margin-top:10px}
+canvas{display:block;width:100%;height:auto;min-height:360px;aspect-ratio:16/9.5;border-radius:14px;background:radial-gradient(circle at 50% 45%,rgba(25,52,86,.25),rgba(2,6,13,.7));overflow:hidden}
+.visual{overflow:hidden}
+
+.back{margin-bottom:14px}.hide{display:none}.footer{border-top:1px solid var(--line);padding:35px 0;color:var(--muted);text-align:center}
+@media(max-width:900px){.cardgrid{grid-template-columns:repeat(2,1fr)}.lab{grid-template-columns:1fr}.visual{min-height:520px}.hydrogen-stage{min-height:430px}}
+@media(max-width:560px){
+.welcome-core{width:94vw;min-height:430px;padding:46px 24px;border-radius:26px}
+.welcome-core h1{font-size:clamp(3rem,18vw,5rem)}
+.welcome-core p{font-size:.98rem;max-width:330px}
+nav{display:flex;gap:2px}nav button{font-size:.7rem;padding:6px 4px}.visual{padding:9px}.sectiontitle h2{font-size:1.55rem}.hero{min-height:68vh;padding:45px 0}.cardgrid{grid-template-columns:1fr}.stats{grid-template-columns:1fr}.visual{min-height:360px}canvas{height:auto;min-height:330px}.sectiontitle{display:block}}
+
+.welcome{position:fixed;inset:0;z-index:100;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 45%,#101f3e 0,#050812 42%,#01030a 100%)}
+.welcome.hidden{display:none}.welcome-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(101,230,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(101,230,255,.055) 1px,transparent 1px);background-size:55px 55px;transform:perspective(500px) rotateX(60deg) scale(1.6);transform-origin:center bottom;animation:gridmove 9s linear infinite}
+@keyframes gridmove{to{background-position:0 55px,55px 0}}
+.qparticle{position:absolute;border-radius:50%;background:var(--cyan);box-shadow:0 0 18px var(--cyan);opacity:.5;animation:float 7s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translate3d(0,0,0);opacity:.2}50%{transform:translate3d(35px,-70px,0);opacity:.8}}
+.welcome-core{position:relative;width:min(680px,92vw);min-height:430px;padding:58px 46px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;border:1px solid rgba(101,230,255,.24);border-radius:30px;background:rgba(5,11,24,.72);backdrop-filter:blur(22px);box-shadow:0 0 90px rgba(70,130,255,.12)}
+.welcome-core:before{content:"";position:absolute;inset:-2px;border-radius:30px;background:conic-gradient(from 0deg,transparent,rgba(101,230,255,.45),transparent,rgba(167,139,250,.35),transparent);z-index:-1;animation:spin 8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.welcome-core h1{font-size:clamp(3.8rem,11vw,7rem);letter-spacing:.08em;margin:12px 0;text-shadow:0 0 35px rgba(101,230,255,.3)}
+.welcome-core h1 span{color:transparent;-webkit-text-stroke:1px var(--cyan)}.welcome-core p{color:var(--muted);margin:12px auto 28px}.namebox{width:min(470px,100%);padding:15px 17px;border-radius:12px;border:1px solid var(--line);background:#060d1b;color:white;outline:none;margin-bottom:12px}.namebox:focus{border-color:var(--cyan);box-shadow:0 0 20px rgba(101,230,255,.12)}
+#homeName{color:var(--cyan)} .welcome-note{font-size:.75rem;color:#687a96;margin-top:16px}
+.home-panel{padding-top:20px}.greeting{color:var(--muted);margin-top:-8px}
+.system-shell{display:none}.system-shell.active{display:block}
+
+.graph-tip{position:absolute;display:none;pointer-events:none;z-index:5;min-width:150px;padding:9px 11px;border:1px solid rgba(101,230,255,.3);border-radius:10px;background:rgba(4,10,20,.92);backdrop-filter:blur(10px);box-shadow:0 8px 28px rgba(0,0,0,.35);font-size:.75rem;color:#dceaff}
+.graph-tip b{color:#65e6ff}.visual{position:relative}
+
+.hydrogen-stage{position:relative;height:100%;min-height:390px;border-radius:14px;overflow:hidden;background:radial-gradient(circle at 50% 50%,rgba(37,78,125,.16),transparent 38%),radial-gradient(circle at 50% 50%,rgba(101,230,255,.06),transparent 65%)}
+.hydrogen-stage:before,.hydrogen-stage:after{content:"";position:absolute;left:50%;top:50%;border:1px solid rgba(101,230,255,.13);border-radius:50%;transform:translate(-50%,-50%) rotateX(68deg);pointer-events:none}
+.hydrogen-stage:before{width:72%;height:38%}.hydrogen-stage:after{width:48%;height:25%;transform:translate(-50%,-50%) rotateY(64deg) rotateX(20deg)}
+.hydrogen-badge{position:absolute;left:16px;top:14px;z-index:2;padding:8px 11px;border-radius:10px;background:rgba(4,10,20,.72);border:1px solid var(--line);font-size:.75rem;color:var(--muted)}
+
+.learn-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.lesson{padding:20px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}.lesson h3{margin-top:0}.lesson p,.lesson li{color:var(--muted);line-height:1.7}.formula{font-family:ui-monospace,SFMono-Regular,monospace;color:#dceaff;background:#060b15;border:1px solid rgba(101,230,255,.12);border-radius:10px;padding:13px;margin:12px 0;overflow:auto}.steps{counter-reset:step;display:grid;gap:12px}.step{display:grid;grid-template-columns:38px 1fr;gap:12px;align-items:start}.step:before{counter-increment:step;content:counter(step);display:grid;place-items:center;width:30px;height:30px;border-radius:50%;border:1px solid rgba(101,230,255,.35);color:var(--cyan);background:rgba(101,230,255,.06)}.equation-title{margin-top:16px;color:#dceaff;font-size:.78rem;text-transform:uppercase;letter-spacing:.12em}
+.hydrogen-touch{position:absolute;inset:0;pointer-events:none;display:grid;place-items:center;color:rgba(220,235,255,.0);transition:.2s}.hydrogen-touch.show{color:rgba(220,235,255,.9)}
+@media(max-width:700px){.learn-grid{grid-template-columns:1fr}}
+
+.welcome:after{content:"";position:absolute;width:min(850px,125vw);height:min(850px,125vw);left:50%;top:50%;transform:translate(-50%,-50%) rotateX(68deg);border:1px solid rgba(101,230,255,.07);border-radius:50%;box-shadow:0 0 80px rgba(101,230,255,.025);pointer-events:none;animation:welcomeOrbit 14s linear infinite}
+@keyframes welcomeOrbit{to{transform:translate(-50%,-50%) rotateX(68deg) rotateZ(360deg)}}
+.welcome-core{z-index:2}
+</style>
+</head>
+<body>
+<div class="welcome" id="welcome">
+  <div class="welcome-grid"></div>
+  <span class="qparticle" style="width:5px;height:5px;left:14%;top:24%;animation-delay:-1s"></span>
+  <span class="qparticle" style="width:8px;height:8px;left:78%;top:19%;animation-delay:-3s"></span>
+  <span class="qparticle" style="width:4px;height:4px;left:68%;top:72%;animation-delay:-5s"></span>
+  <span class="qparticle" style="width:6px;height:6px;left:24%;top:76%;animation-delay:-2s"></span>
+  <div class="welcome-core">
+    <div class="kicker">Quantum Mechanics Visualized</div>
+    <h1>QUANTA<span>VIA</span></h1>
+    <p>Explore the invisible world of quantum mechanics.</p>
+    <input class="namebox" id="userName" placeholder="Enter your name" autocomplete="name">
+    <button class="cta" onclick="enterLab()">Enter the Quantum Lab →</button>
+    <div class="welcome-note">No account. No login. Just curiosity.</div>
+  </div>
+</div>
+
+<header class="top"><div class="brand">QUANTA<span>VIA</span></div><nav><button onclick="home()">Home</button><button onclick="systems()">Quantum Systems</button><button onclick="learn()">Learn</button><button onclick="about()">About</button></nav></header>
+
+<main id="app">
+<section class="hero" id="home" style="display:none">
+<div><div class="kicker">Quantum Mechanics Visualized</div><h1>QUANTA<span>VIA</span></h1><p>Explore the invisible world of quantum mechanics. Change a physical parameter and watch the mathematics become a living visualization.</p><button class="cta" onclick="systems()">Enter the Quantum Lab →</button></div>
+</section>
+<section id="systems" class="home-panel">
+<div class="sectiontitle"><div><div class="kicker">Quantum laboratory</div><h2>Welcome, <span id="homeName">Explorer</span> 👋</h2><p class="greeting">Choose a system and watch quantum mechanics come alive.</p></div><span class="muted">5 INTERACTIVE SYSTEMS</span></div>
+<div class="cardgrid">
+<div class="card" onclick="openLab('box')"><div class="orb">〰️</div><h3>Particle in 1D Box</h3><p>Explore quantized energy states and wavefunctions.</p></div>
+<div class="card" onclick="openLab('well')"><div class="orb">∪</div><h3>Finite Potential Well</h3><p>See how quantum particles penetrate potential barriers.</p></div>
+<div class="card" onclick="openLab('osc')"><div class="orb">∿</div><h3>Quantum Harmonic Oscillator</h3><p>Explore quantized vibration and quantum probability.</p></div>
+<div class="card" onclick="openLab('tunnel')"><div class="orb">⇢</div><h3>Quantum Tunneling</h3><p>Visualize particles crossing classically forbidden barriers.</p></div>
+<div class="card" onclick="openLab('hydrogen')"><div class="orb">✦</div><h3>Hydrogen Atom</h3><p>Explore atomic energy levels and probability clouds.</p></div>
+</div></section>
+
+<section id="lab" class="hide">
+<div class="back"><button class="cta" onclick="systems()">← Back to Quantum Systems</button></div>
+<div class="sectiontitle"><div><div class="kicker" id="labKicker"></div><h2 id="labTitle"></h2></div></div>
+<div class="lab"><aside class="panel" id="controls"></aside><div class="visual"><div class="tabs" id="tabs"></div><div class="muted" style="font-size:.75rem;margin:4px 4px 8px">Live visualization · numerical results update with the controls</div><canvas id="canvas"></canvas><div class="hydrogen-touch" id="hydrogenTouch">Touch the orbital to explore its probability cloud</div><div class="graph-tip" id="graphTip"></div><div class="stats" id="stats"></div><div class="equation-title">Equation used</div><div class="eq" id="equation"></div><div class="explain" id="explain"></div></div></div>
+</section>
+
+<section id="learn" class="hide"><button class="ghost" onclick="systems()">← Back to Quantum Systems</button>
+<div class="sectiontitle"><div><div class="kicker">Learn</div><h2>Quantum Mechanics Learning Lab</h2><p class="greeting">Short theory and equations connected directly to the five simulations.</p></div></div>
+<div class="learn-grid">
+<div class="lesson"><h3>📦 Particle in a 1D Box</h3><p>A confined particle can only occupy certain standing-wave states. Higher quantum numbers mean more nodes and higher energy.</p><div class="formula">Eₙ = n²h² / (8mL²)</div><div class="formula">ψₙ(x) = √(2/L) sin(nπx/L)</div><p><b>|ψ(x)|²</b> is the probability density: it tells us where a measurement is more likely to find the particle.</p></div>
+<div class="lesson"><h3>🕳️ Finite Potential Well</h3><p>Realistic finite wells allow the wavefunction to extend beyond the well. That exponential tail is quantum penetration.</p><div class="formula">κ = √(2m(V₀−E)) / ℏ</div><p>Only energies below the well barrier correspond to bound states in the model.</p></div>
+<div class="lesson"><h3>🎵 Harmonic Oscillator</h3><p>This model describes quantum motion near a stable equilibrium. Its energy levels are equally spaced.</p><div class="formula">Eₙ = (n + 1/2)ℏω</div><div class="formula">V(x) = 1/2 mω²x²</div><p>The classical turning points help compare the quantum probability distribution with classical motion.</p></div>
+<div class="lesson"><h3>🚧 Quantum Tunneling</h3><p>A particle can have a nonzero transmission probability through a barrier even when its energy is below the barrier height.</p><div class="formula">T + R ≈ 1</div><div class="formula">κ = √(2m(V₀−E)) / ℏ</div><p>Increasing barrier width or height generally suppresses transmission.</p></div>
+<div class="lesson"><h3>🌌 Hydrogen Atom</h3><p>Hydrogen orbitals are quantum states described by n, l, and mₗ. The cloud represents probability, not a planetary orbit.</p><div class="formula">Eₙ = −13.6 eV / n²</div><p>Radial nodes = n − l − 1; angular nodes = l.</p></div>
+<div class="lesson"><h3>🧠 Core Idea</h3><p>Quantum mechanics predicts measurement probabilities using a state or wavefunction. The mathematics is not a picture of a tiny classical object moving along a definite path.</p><div class="formula">P(x) = |ψ(x)|²</div><p>Use the simulations first, then return here to connect what you see with the equations.</p></div>
+</div></section>
+<section id="about" class="hide"><button class="ghost" onclick="systems()">← Back to Quantum Systems</button>
+<div class="sectiontitle"><div><div class="kicker">About QUANTAVIA</div><h2>Your Interactive Quantum Laboratory</h2></div></div>
+<div class="panel" style="margin-bottom:16px"><p class="muted" style="line-height:1.8"><b style="color:#eef5ff">QUANTAVIA</b> is an educational web experience designed to make quantum mechanics easier to explore through interactive calculations and visualizations. Instead of only returning a number, each system connects physical parameters, equations, numerical results, and a visual model.</p></div>
+<div class="panel"><h3>How to use QUANTAVIA</h3><div class="steps">
+<div class="step"><div><b>Enter the lab</b><p class="muted">Enter your name on the opening screen. No account is required.</p></div></div>
+<div class="step"><div><b>Choose a quantum system</b><p class="muted">Select one of the five systems: box, finite well, oscillator, tunneling, or hydrogen.</p></div></div>
+<div class="step"><div><b>Set physical parameters</b><p class="muted">Use the controls to change particle type, dimensions, energy, quantum numbers, or other available parameters.</p></div></div>
+<div class="step"><div><b>Simulate and observe</b><p class="muted">Watch the graph and probability visualization respond. Choose Wavefunction, Probability density, or Both when available.</p></div></div>
+<div class="step"><div><b>Touch the visualization</b><p class="muted">Move or tap on a graph to inspect local values. In the hydrogen visualization, interact with the orbital cloud to explore its structure.</p></div></div>
+<div class="step"><div><b>Understand the result</b><p class="muted">Read the numerical results, equation, and explanation below the visualization, then use Learn for the related theory.</p></div></div>
+</div></div></section>
+</main>
+<footer class="footer">QUANTAVIA · Quantum Mechanics Visualized · Educational visualization</footer>
+
+<script>
+const h=6.62607015e-34, hb=1.054571817e-34, me=9.1093837e-31, ev=1.602176634e-19, kB=1.380649e-23;
+const masses={Electron:me,Proton:1.6726219e-27,Neutron:1.6749275e-27};
+let mode='box', view='both', raf=0, angle=0;
+const $=id=>document.getElementById(id);
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!$('welcome').classList.contains('hidden'))enterLab()});
+function enterLab(){
+ const name=($('userName').value||'Explorer').trim().slice(0,32);
+ $('homeName').textContent=name;
+ $('welcome').classList.add('hidden');
+ window.scrollTo({top:0,behavior:'instant'});
+}
+function home(){if(!$('welcome').classList.contains('hidden'))return;systems()} function systems(){
+ $('lab').classList.add('hide'); $('learn').classList.add('hide'); $('about').classList.add('hide'); $('systems').classList.remove('hide');
+ $('systems').scrollIntoView({behavior:'smooth'});
+}
+function learn(){
+ $('lab').classList.add('hide'); $('systems').classList.add('hide'); $('about').classList.add('hide'); $('learn').classList.remove('hide');
+ $('learn').scrollIntoView({behavior:'smooth'});
+}
+function about(){
+ $('lab').classList.add('hide'); $('systems').classList.add('hide'); $('learn').classList.add('hide'); $('about').classList.remove('hide');
+ $('about').scrollIntoView({behavior:'smooth'});
+}
+function fmt(x){if(!isFinite(x))return '—';let a=Math.abs(x); if(a===0)return '0'; if(a>=.01&&a<1e5)return x.toPrecision(4); return x.toExponential(3)}
+function openLab(m){
+ mode=m;
+ $('systems').classList.add('hide');
+ $('learn').classList.add('hide');
+ $('about').classList.add('hide');
+ $('lab').classList.remove('hide');
+ window.scrollTo({top:0,behavior:'instant'});
+ buildControls(); draw();
+}
+function particleSelect(id='particle'){return `<div class="field"><label>Particle</label><select id="${id}" onchange="draw()"><option>Electron</option><option>Proton</option><option>Neutron</option></select></div>`}
+function range(id,label,min,max,val,step,unit=''){return `<div class="field"><label><span>${label}</span><b id="${id}Val">${val}${unit}</b></label><input id="${id}" type="range" min="${min}" max="${max}" value="${val}" step="${step}" oninput="document.getElementById('${id}Val').textContent=this.value+'${unit}';draw()"></div>`}
+function buildControls(){
+let title={box:'Particle in a 1D Box',well:'Finite Potential Well',osc:'Quantum Harmonic Oscillator',tunnel:'Quantum Tunneling',hydrogen:'Hydrogen Atom'}[mode];
+$('labKicker').textContent='Interactive simulation';$('labTitle').textContent=title;
+let c='';
+if(mode==='box') c=particleSelect()+range('L','Box width',0.2,5,1,.1,' nm')+range('n','Energy state n',1,10,2,1);
+if(mode==='well') c=particleSelect()+range('WL','Well width',0.2,5,1,.1,' nm')+range('V0','Well depth',1,100,20,1,' eV')+range('state','Bound state',1,6,1,1);
+if(mode==='osc') c=particleSelect()+range('omega','Angular frequency',1,20,5,.5,' ×10¹⁵ rad/s')+range('on','Energy state n',0,6,2,1);
+if(mode==='tunnel') c=particleSelect()+range('E','Particle energy',0.5,20,5,.5,' eV')+range('TB','Barrier height',1,30,10,.5,' eV')+range('a','Barrier width',0.05,2,.5,.05,' nm');
+if(mode==='hydrogen') c=range('hn','Principal n',1,4,2,1)+range('hl','Azimuthal l',0,1,0,1)+range('hm','Magnetic ml',-1,1,0,1);
+$('controls').innerHTML=c+`<button class="cta" style="width:100%;margin-top:10px" onclick="draw();this.textContent='Simulated ✓';setTimeout(()=>this.textContent='Simulate ↻',900)">Simulate ↻</button>
+<button class="ghost" style="width:100%;margin-top:6px" onclick="systems()">← Quantum Systems</button>
+<p class="muted" style="font-size:.78rem">All core calculations use SI constants internally.</p>`;
+$('tabs').innerHTML=(mode==='hydrogen'?'':'<button class="active" onclick="setView(this,\'both\')">Both</button><button onclick="setView(this,\'wave\')">Wavefunction only</button><button onclick="setView(this,\'prob\')">Probability density</button>');
+}
+function setView(el,v){view=v;document.querySelectorAll('#tabs button').forEach(x=>x.classList.remove('active'));el.classList.add('active');draw()}
+function ctx(){
+ let c=$('canvas'), d=Math.min(window.devicePixelRatio||1,2), r=c.getBoundingClientRect();
+ let w=Math.max(280,r.width), hh=Math.max(300,r.height);
+ c.width=Math.floor(w*d); c.height=Math.floor(hh*d);
+ let x=c.getContext('2d'); x.setTransform(d,0,0,d,0,0);
+ return [x,w,hh];
+}
+function glowPath(x,pts,color='101,230,255',width=3){x.save();x.shadowBlur=16;x.shadowColor=`rgb(${color})`;x.strokeStyle=`rgb(${color})`;x.lineWidth=width;x.beginPath();pts.forEach((p,i)=>i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1]));x.stroke();x.restore()}
+function axes(x,w,hh){x.strokeStyle='rgba(150,180,220,.2)';x.lineWidth=1;x.beginPath();x.moveTo(45,hh-45);x.lineTo(w-20,hh-45);x.stroke()}
+
+let lastGraphData={};
+function plotData(pointsWave,pointsProb,left,right,top,bottom,kind){
+  lastGraphData={pointsWave,pointsProb,left,right,top,bottom,kind};
+}
+function updateGraphTip(clientX,clientY){
+  const c=$('canvas'), tip=$('graphTip'), r=c.getBoundingClientRect();
+  if(!lastGraphData.pointsWave && !lastGraphData.pointsProb){tip.style.display='none';return}
+  const px=Math.max(0,Math.min(r.width,clientX-r.left));
+  const py=Math.max(0,Math.min(r.height,clientY-r.top));
+  const {pointsWave,pointsProb,left,right,top,bottom}=lastGraphData;
+  const t=Math.max(0,Math.min(1,(px-left)/(right-left)));
+  const idx=Math.max(0,Math.min(pointsWave.length-1,Math.round(t*(pointsWave.length-1))));
+  const wp=pointsWave[idx], pp=pointsProb[idx];
+  let text=`x ≈ ${(t*100).toFixed(1)}% of range`;
+  if(view!=='prob' && wp) text+=`<br><b>ψ</b> ≈ ${((bottom-wp[1])/((bottom-top)||1)).toFixed(3)}`;
+  if(view!=='wave' && pp) text+=`<br><b>|ψ|²</b> ≈ ${((bottom-pp[1])/((bottom-top)||1)).toFixed(3)}`;
+  tip.innerHTML=text;
+  const visual=$('canvas').parentElement, vr=visual.getBoundingClientRect();
+  tip.style.display='block';
+  tip.style.left=Math.min(Math.max(8,clientX-vr.left+14),visual.clientWidth-170)+'px';
+  tip.style.top=Math.min(Math.max(45,clientY-vr.top-18),visual.clientHeight-95)+'px';
+}
+function hideGraphTip(){$('graphTip').style.display='none'}
+function draw(){
+ cancelAnimationFrame(raf);
+ hideGraphTip();
+ lastGraphData={};
+ $('hydrogenTouch').classList.toggle('show', mode==='hydrogen' && !window.__hydrogenTouched);
+ const [x,w,hh]=ctx();x.clearRect(0,0,w,hh);axes(x,w,hh);
+if(mode==='box') drawBox(x,w,hh); if(mode==='well') drawWell(x,w,hh); if(mode==='osc') drawOsc(x,w,hh); if(mode==='tunnel') drawTunnel(x,w,hh); if(mode==='hydrogen') drawHydrogen(x,w,hh);
+ // subtle animated quantum phase/pulse to make the lab feel alive
+ if(mode!=='hydrogen'){
+   const t=performance.now()/700, pulse=(Math.sin(t)+1)/2;
+   x.save(); x.globalAlpha=.08+.05*pulse; x.strokeStyle='#65e6ff'; x.lineWidth=1;
+   x.beginPath(); x.arc(w-48,38,8+6*pulse,0,Math.PI*2); x.stroke(); x.restore();
+ }
+}
+function setInfo(stats,eq,ex){$('stats').innerHTML=stats.map(a=>`<div class="stat"><small>${a[0]}</small><b>${a[1]}</b></div>`).join('');$('equation').textContent=eq;$('explain').textContent=ex}
+function drawBox(x,w,hh){
+let n=+$('n').value,L=+$('L').value*1e-9,m=masses[$('particle').value],E=n*n*h*h/(8*m*L*L);
+let left=72,right=w-34,top=38,bottom=hh-62,plotH=bottom-top,mid=top+plotH*.53,pts=[],probs=[];
+const waveAmp=plotH*.27, probAmp=plotH*.30;
+for(let i=0;i<=500;i++){
+  let t=i/500, raw=Math.sin(n*Math.PI*t);
+  pts.push([left+t*(right-left),mid-raw*waveAmp]);
+  probs.push([left+t*(right-left),bottom-Math.pow(raw,2)*probAmp]);
+}
+x.strokeStyle='rgba(255,255,255,.55)';x.lineWidth=4;x.beginPath();
+x.moveTo(left,bottom);x.lineTo(left,top);x.moveTo(right,bottom);x.lineTo(right,top);x.stroke();
+x.strokeStyle='rgba(255,255,255,.12)';x.lineWidth=1;x.beginPath();x.moveTo(left,mid);x.lineTo(right,mid);x.stroke();
+if(view!=='prob')glowPath(x,pts,'101,230,255',3);
+if(view!=='wave')glowPath(x,probs,'167,139,250',2);
+for(let i=1;i<n;i++){
+  let xx=left+(i/n)*(right-left);x.fillStyle='rgba(255,255,255,.5)';
+  x.beginPath();x.arc(xx,mid,3,0,7);x.fill();
+}
+plotData(pts,probs,left,right,top,bottom,'box');
+x.fillStyle='rgba(145,163,191,.8)';x.font='12px system-ui';x.fillText('ψ(x)',left+8,top+15);
+x.fillText('|ψ(x)|²',left+8,bottom-probAmp-8);
+x.fillText('0',left-8,bottom+20);x.fillText('L',right-3,bottom+20);
+setInfo([['Energy',fmt(E/ev)+' eV'],['Nodes',n-1],['⟨x⟩',fmt(L/2*1e9)+' nm']],`Eₙ = n²h² / (8mL²)     ψₙ(x) = √(2/L) sin(nπx/L)`,`The particle is confined between the walls. Increasing n adds nodes and raises the energy. The purple curve represents probability density |ψ|², not a classical path.`)
+}
+function drawWell(x,w,hh){
+let state=+$('state').value,L=+$('WL').value*1e-9,V0=+$('V0').value,m=masses[$('particle').value];
+let levels=Math.max(1,Math.min(6,Math.floor(1+Math.sqrt(V0)*L/1e-9/3))), idx=Math.min(state,levels);
+let E=(idx*idx*h*h/(8*m*L*L)/ev);E=Math.min(E,V0*.9);let k=Math.sqrt(2*m*E*ev)/hb,kappa=Math.sqrt(2*m*Math.max(V0-E,0.01)*ev)/hb;
+let left=72,right=w-34,center=(left+right)/2,half=Math.min((right-left)*.22,L/2e-9*55),base=hh-62,pts=[],probs=[];
+for(let i=0;i<=320;i++){let u=i/320,t=u*4-2,xx=t*half, val=Math.abs(xx)<=half?Math.sin(k*(xx*1e-9+L/2)):Math.sin(k*L/2)*Math.exp(-kappa*(Math.abs(xx)*1e-9-L/2));let px=center+t*(right-left)/4;pts.push([px,base-val*Math.min(65,hh*.14)]);probs.push([px,base-val*val*Math.min(50,hh*.11)])}
+x.strokeStyle='rgba(167,139,250,.35)';x.lineWidth=5;x.beginPath();x.moveTo(left,base);x.lineTo(center-half,base);x.lineTo(center-half,base-220);x.lineTo(center+half,base-220);x.lineTo(center+half,base);x.lineTo(right,base);x.stroke();
+if(view!=='prob')glowPath(x,pts,'101,230,255',3);
+if(view!=='wave')glowPath(x,probs,'167,139,250',2);
+plotData(pts,probs,left,right,35,base,'well');
+setInfo([['Bound states',levels],['Selected E',fmt(E)+' eV'],['Penetration',fmt(1/kappa*1e9)+' nm']],`V(x): finite well     ψ outside ∝ e^(−κx)`,`Unlike the infinite box, the wavefunction leaks outside the well. This exponential tail is quantum penetration.`)
+}
+function drawOsc(x,w,hh){
+let n=+$('on').value,m=masses[$('particle').value],omega=+$('omega').value*1e15,E=(n+.5)*hb*omega,scale=1e-9*Math.sqrt(hb/(m*omega))*3e9;
+let left=72,right=w-34,base=hh-62,pts=[],probs=[];
+function H(n,z){if(n===0)return 1;if(n===1)return 2*z;let a=1,b=2*z,c;for(let i=2;i<=n;i++){c=2*z*b-2*(i-1)*a;a=b;b=c}return b}
+for(let i=0;i<=300;i++){let t=i/300,z=(t-.5)*6,psi=Math.exp(-z*z/2)*H(n,z)/Math.sqrt(Math.pow(2,n)*factorial(n));pts.push([left+t*(right-left),base-psi*Math.min(55,hh*.13)]);probs.push([left+t*(right-left),base-psi*psi*Math.min(80,hh*.19)])}
+x.strokeStyle='rgba(167,139,250,.5)';x.lineWidth=2;x.beginPath();for(let i=0;i<=220;i++){let t=i/220,z=(t-.5)*6,y=base-((z*z)/8)*45;i?x.lineTo(left+t*(right-left),y):x.moveTo(left+t*(right-left),y)}x.stroke();
+if(view!=='prob')glowPath(x,pts,'101,230,255',3);
+if(view!=='wave')glowPath(x,probs,'167,139,250',2);
+plotData(pts,probs,left,right,35,base,'osc');
+let turn=Math.sqrt(2*n+1);x.setLineDash([5,5]);x.strokeStyle='rgba(109,242,179,.5)';[-turn,turn].forEach(z=>{let px=w/2+z/6*(right-left);x.beginPath();x.moveTo(px,40);x.lineTo(px,base);x.stroke()});x.setLineDash([]);
+setInfo([['Energy',fmt(E/ev)+' eV'],['Nodes',n],['Turning points','±'+turn.toFixed(2)+' ξ']],`Eₙ = (n + 1/2)ℏω     V(x) = ½mω²x²`,`The oscillator has discrete energies even in its lowest state. The dashed markers show classical turning points; the quantum probability extends beyond them.`)
+}
+function factorial(n){let a=1;for(let i=2;i<=n;i++)a*=i;return a}
+function drawTunnel(x,w,hh){
+let E=+$('E').value,V=+$('TB').value,a=+$('a').value,m=masses[$('particle').value],T;
+if(E>=V)T=1;else{let kap=Math.sqrt(2*m*(V-E)*ev)/hb;let aa=a*1e-9;T=1/(1+(V*V*Math.sinh(kap*aa)**2)/(4*E*(V-E)))}
+let R=1-T,left=40,right=w-20,base=hh-75,b1=w*.46,b2=b1+a/2*(w*.25),pts=[],trans=[];
+for(let i=0;i<=360;i++){let t=i/360,xx=left+t*(right-left),phase=t*16;let val;if(xx<b1)val=Math.sin(phase);else if(xx<b2)val=Math.sin(phase)*Math.exp(-(xx-b1)/35);else val=Math.sqrt(T)*Math.sin(phase);pts.push([xx,base-val*60]);trans.push([xx,base-val*val*55])}
+x.fillStyle='rgba(167,139,250,.13)';x.fillRect(b1,35,Math.max(15,b2-b1),base-35);x.fillStyle='rgba(255,255,255,.7)';x.fillRect(b1,base-((V/30)*200),Math.max(15,b2-b1),3);
+if(view!=='prob')glowPath(x,pts,'101,230,255',3);
+if(view!=='wave')glowPath(x,trans,'167,139,250',2);
+plotData(pts,trans,left,right,35,base,'tunnel');
+setInfo([['Transmission T',(T*100).toFixed(2)+'%'],['Reflection R',(R*100).toFixed(2)+'%'],['T + R',(T+R).toFixed(4)]],`For E < V₀, κ = √(2m(V₀−E))/ℏ; transmission decreases rapidly with barrier width/height`,`The incoming wave is partly reflected and partly transmitted. The transmitted component exists even when the barrier is classically forbidden.`)
+}
+function drawHydrogen(x,w,hh){
+let n=+$('hn').value,l=+$('hl').value,m=+$('hm').value;
+if(l>=n){l=n-1;$('hl').value=l;$('hlVal').textContent=l}
+if(Math.abs(m)>l){m=0;$('hm').value=0;$('hmVal').textContent=0}
+let E=-13.6057/(n*n), orbital=(l===0?'s':l===1?'p':l===2?'d':'f');
+let name=n+orbital, cx=w/2,cy=hh/2, t=performance.now()/1300;
+x.clearRect(0,0,w,hh);
+
+// deep space background
+let bg=x.createRadialGradient(cx,cy,5,cx,cy,Math.max(w,hh)*.58);
+bg.addColorStop(0,'rgba(25,66,110,.18)');bg.addColorStop(.42,'rgba(9,21,39,.13)');bg.addColorStop(1,'rgba(0,0,0,0)');
+x.fillStyle=bg;x.fillRect(0,0,w,hh);
+
+// orbital shells / rings
+x.save();x.translate(cx,cy);x.rotate(t*.08);
+for(let j=0;j<3;j++){
+  x.strokeStyle=`rgba(101,230,255,${.12-j*.025})`;x.lineWidth=1;
+  x.beginPath();x.ellipse(0,0,72+j*52,32+j*20,j*.35,0,Math.PI*2);x.stroke();
+}
+x.restore();
+
+// deterministic probability cloud
+let color=l===0?'101,230,255':l===1?'167,139,250':l===2?'255,118,214':'109,242,179';
+let seed=(n*17+l*31+m*13+7);
+function rnd(){seed=(seed*1664525+1013904223)%4294967296;return seed/4294967296}
+for(let i=0;i<1500;i++){
+  let u=rnd()*2-1, phi=rnd()*Math.PI*2, rmax=48+n*42;
+  let r=Math.pow(rnd(),.42)*rmax;
+  let angular=1;
+  if(l===1) angular=Math.abs(u)*1.65+.08;
+  if(l===2) angular=(Math.abs(3*u*u-1)+.12)*1.2;
+  if(l>=3) angular=(Math.abs(Math.sin(3*phi))+0.1);
+  r*=angular;
+  let q=Math.sqrt(Math.max(0,1-u*u)), X=r*q*Math.cos(phi), Y=r*q*Math.sin(phi), Z=r*u;
+  let c=Math.cos(t*.65),ss=Math.sin(t*.65);
+  let rx=X*c-Z*ss, rz=X*ss+Z*c;
+  let perspective=1+rz/(rmax*3);
+  let px=cx+rx*perspective, py=cy+Y*.72*perspective;
+  let alpha=.025+rnd()*.16;
+  x.fillStyle=`rgba(${color},${alpha})`;x.fillRect(px,py,1.6,1.6);
+}
+
+// glowing nucleus
+let ng=x.createRadialGradient(cx,cy,1,cx,cy,34);
+ng.addColorStop(0,'rgba(255,255,255,.95)');ng.addColorStop(.12,'rgba(101,230,255,.9)');ng.addColorStop(.42,'rgba(101,230,255,.2)');ng.addColorStop(1,'rgba(101,230,255,0)');
+x.fillStyle=ng;x.beginPath();x.arc(cx,cy,34,0,Math.PI*2);x.fill();
+x.fillStyle='#fff';x.beginPath();x.arc(cx,cy,4,0,Math.PI*2);x.fill();
+
+x.fillStyle='rgba(220,235,255,.8)';x.font='12px system-ui';x.textAlign='center';
+x.fillText('nucleus',cx,cy+53);
+
+setInfo([['State',name],['Energy',E.toFixed(4)+' eV'],['Nodes','radial '+(n-l-1)+' · angular '+l]],
+`Hydrogen: Eₙ = −13.6 eV / n²`,
+`The glowing cloud shows where the electron is likely to be detected. It is a probability distribution, not a classical orbit. Change n, l, and mₗ to explore different orbital shapes.`);
+
+// continuous orbital motion
+raf=requestAnimationFrame(draw)
+}
+
+window.addEventListener('resize',()=>{if(!$('lab').classList.contains('hide'))draw()});
+$('canvas').addEventListener('pointermove',e=>{
+  if(mode==='hydrogen'){
+    window.__hydrogenTouched=true;
+    $('hydrogenTouch').classList.remove('show');
+    const tip=$('graphTip'), r=$('canvas').getBoundingClientRect();
+    tip.innerHTML='<b>Hydrogen orbital</b><br>Interactive probability cloud<br>State: '+($('hn').value)+($('hl').value==0?'s':$('hl').value==1?'p':$('hl').value==2?'d':'f');
+    tip.style.display='block';tip.style.left=Math.min(Math.max(8,e.clientX-r.left+14),r.width-175)+'px';tip.style.top=Math.min(Math.max(45,e.clientY-r.top-18),r.height-75)+'px';
+  } else updateGraphTip(e.clientX,e.clientY);
+});
+$('canvas').addEventListener('pointerdown',e=>{
+  if(mode==='hydrogen'){window.__hydrogenTouched=true;$('hydrogenTouch').classList.remove('show');}
+  else updateGraphTip(e.clientX,e.clientY);
+});
+$('canvas').addEventListener('pointerleave',hideGraphTip);
+$('canvas').addEventListener('pointercancel',hideGraphTip);
+
+</script>
+</body></html>
